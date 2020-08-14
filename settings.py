@@ -13,5 +13,11 @@ RED = (208, 22, 22)
 GREY = (107, 107, 107)
 WHITE = (255, 255, 255)
 GOLD = (124, 123, 7)
+GREEN = (33, 208, 33)
+YELLOW = (188, 188, 12)
+ORANGE = (208, 137, 50)
 PLAYER_COLOUR = (190, 194, 15)
 
+# font settings
+MENU_TEXT_SIZE = 64
+MENU_FONT = 'comicsans'
