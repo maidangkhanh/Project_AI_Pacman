@@ -16,8 +16,8 @@ class Ghost:
 
     def draw(self):
         pygame.draw.circle(self.app.screen, RED,
-                           (int(self.grid_pos.x*self.app.cell_width + self.app.cell_width//2),
-                            int(self.grid_pos.y*self.app.cell_height + self.app.cell_height//2)),
+                           (int(self.grid_pos[0]*self.app.cell_width + self.app.cell_width//2),
+                            int(self.grid_pos[1]*self.app.cell_height + self.app.cell_height//2)),
                            int(self.app.cell_width//3))
 
     def update(self):
@@ -64,7 +64,7 @@ class Ghost:
         pac_pos = self.app.pacman.grid_pos
         queue = []
         heapq.heappush(queue, (
-        self.Heuristic(self.grid_pos, pac_pos), self.grid_pos, [], 0))  # Heuristic + cost, coordinate, path, cost
+            self.Heuristic(self.grid_pos, pac_pos), [self.grid_pos[0], self.grid_pos[1]], [], 0))  # Heuristic + cost, coordinate, path, cost
 
         while queue:
             popped_element = heapq.heappop(queue)
@@ -85,8 +85,9 @@ class Ghost:
                     if vec(x_, y_) not in self.app.walls:
                         if not [x_, y_] in path:
                             coordiante = [x_, y_]
-                            heapq.heappush(queue, (
-                            self.Heuristic(coordiante, pac_pos) + cost + 1, coordiante, path + [vec(x, y)], cost + 1))
+                            h = self.Heuristic(coordiante, pac_pos)
+                            v = vec(x, y)
+                            heapq.heappush(queue, (h + cost + 1, coordiante, path + [[v.x, v.y]], cost + 1))
         return []
 
     def hunt(self):

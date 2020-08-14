@@ -21,8 +21,8 @@ class Pac:
 
     def draw(self):
         pygame.draw.circle(self.app.screen, PLAYER_COLOUR,
-                           (int(self.grid_pos.x*self.app.cell_width + self.app.cell_width//2),
-                            int(self.grid_pos.y*self.app.cell_height + self.app.cell_height//2)),
+                           (int(self.grid_pos[0]*self.app.cell_width + self.app.cell_width//2),
+                            int(self.grid_pos[1]*self.app.cell_height + self.app.cell_height//2)),
                            int(self.app.cell_width//3))
 
     def update1(self):
@@ -66,6 +66,8 @@ class Pac:
             if self.path:
                 self.grid_pos = self.path.pop(0)
                 self.score -= 1
+            elif self.starting_pos in self.app.coins:
+                pass
             else:
                 self.app.state = 'finish'
         else:
@@ -106,7 +108,7 @@ class Pac:
                             if not [x_, y_] in path:
                                 coordiante = [x_, y_]
                                 heapq.heappush(queue, (
-                                Heuristic(coordiante, coin_pos) + cost + 1, coordiante, path + [vec(x, y)], cost + 1))
+                                Heuristic(coordiante, coin_pos) + cost + 1, coordiante, path + [[x, y]], cost + 1))
             return []
 
     def find_coins1(self):
@@ -136,7 +138,7 @@ class Pac:
                             if not [x_, y_] in path:
                                 coordiante = [x_, y_]
                                 heapq.heappush(queue, (
-                                Heuristic(coordiante, coin_pos) + cost + 1, coordiante, path + [vec(x, y)], cost + 1))
+                                Heuristic(coordiante, coin_pos) + cost + 1, coordiante, path + [[x, y]], cost + 1))
             return []
 
     def BFS(self):
