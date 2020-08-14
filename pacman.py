@@ -81,9 +81,18 @@ class Pac:
                 self.seen_coins.remove(self.grid_pos)
             self.score += 20
 
+    def closet_coin(self):
+        coins_queue = []
+        i = 0
+        while i < len(self.app.coins):
+            coin_pos = [int(self.app.coins[i][0]), int(self.app.coins[i][1])]
+            heapq.heappush(coins_queue, (Heuristic(coin_pos, self.grid_pos), coin_pos))
+            i += 1
+        return heapq.heappop(coins_queue)[1]
+
     def find_coins2(self):
         if self.app.coins:
-            coin_pos = self.app.coins[0]
+            coin_pos = self.closet_coin()
             queue = []
             heapq.heappush(queue, (
             Heuristic(self.grid_pos, coin_pos), self.grid_pos, [], 0))  # Heuristic + cost, coordinate, path, cost
@@ -113,7 +122,7 @@ class Pac:
 
     def find_coins1(self):
         if self.app.coins:
-            coin_pos = self.app.coins[0]
+            coin_pos = self.closet_coin()
             queue = []
             heapq.heappush(queue, (
             Heuristic(self.grid_pos, coin_pos), self.grid_pos, [], 0))  # Heuristic + cost, coordinate, path, cost
