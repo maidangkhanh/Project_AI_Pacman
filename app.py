@@ -1,5 +1,9 @@
 from pacman import *
 from ghost import *
+from collections import deque
+import time
+import random
+from settings import level3 as lv3
 
 pygame.init()
 
@@ -69,15 +73,7 @@ class App:
                 self.running = 'finish'
 
     def update3(self):
-        if not self.coins:
-            self.state = 'finish'
-        self.pacman.update3()
-        for ghost in self.ghosts:
-            if ghost.grid_pos == self.pacman.grid_pos:
-                self.running = 'finish'
-            ghost.update3()
-            if ghost.grid_pos == self.pacman.grid_pos:
-                self.running = 'finish'
+        self.level3(1000)
 
     def update4(self):
         if not self.coins:
@@ -90,7 +86,7 @@ class App:
             if ghost.grid_pos == self.pacman.grid_pos:
                 self.running = 'finish'
 
-    def load(self, map_dir="map0.txt"):
+    def load(self, map_dir="map1.txt"):
         with open(map_dir) as file:
             self.row, self.col = [int(i) for i in file.readline().split(" ")]
             for line in file:
@@ -221,6 +217,195 @@ class App:
             pos[1] = pos[1]-text_size[1]//2
         screen.blit(text, pos)
 
+        # level 3
+
+    def heuristic_lv3(self, pacman_pos, direction, limit):
+        # get first step
+        if direction == lv3.direct_up:
+            first = (pacman_pos[0], ((pacman_pos[1] - 1 + self.row) % self.row))
+        if direction == lv3.direct_down:
+            first = (pacman_pos[0], ((pacman_pos[1] + 1 + self.row) % self.row))
+        if direction == lv3.direct_left:
+            first = ((pacman_pos[0] - 1 + self.col) % self.col, pacman_pos[1])
+        if direction == lv3.direct_right:
+            first = ((pacman_pos[0] + 1 + self.col) % self.col, pacman_pos[1])
+
+        frontier = deque()
+        frontier.append((first, 1))
+
+        expanded = [pacman_pos]
+
+        heuristic = 0
+
+        ghost_detect = False
+        coin_detect = False
+        while frontier:
+            pos, cost = frontier.popleft()
+
+            expanded.append(pos)
+
+            type = self.pos_type_lv3(pos)
+
+            if type == lv3.ghost_h and cost <= 2:
+                ghost_detect = True
+                heuristic += lv3.ghost_h
+                continue
+
+            if type == lv3.wall_h:
+                continue
+
+            if type == lv3.coin_h:
+                coin_detect = True
+                heuristic += lv3.coin_h * (limit - cost + 1)
+
+            if type == lv3.path_h:
+                heuristic += lv3.path_h
+
+            if cost < limit:
+                up = (pos[0], ((pos[1] - 1 + self.row) % self.row))
+                down = (pos[0], ((pos[1] + 1 + self.row) % self.row))
+                left = ((pos[0] - 1 + self.col) % self.col, pos[1])
+                right = ((pos[0] + 1 + self.col) % self.col, pos[1])
+
+                adjacency_list = [up, down, left, right]
+                for node in adjacency_list:
+                    f_exist = False
+                    for f_node in frontier:
+                        if f_node[0] == node:
+                            f_exist = True
+                            break
+
+                    if node not in expanded and not f_exist:
+                        frontier.append((node, cost + 1))
+
+        if not ghost_detect and not coin_detect:
+            type = self.pos_type_lv3(first)
+            if type == lv3.wall_h:
+                return lv3.first_is_wall_h
+            if type == lv3.path_h:
+                return lv3.first_is_path_h
+
+        return heuristic
+
+    def pos_type_lv3(self, pos):
+        for ghost in self.ghosts:
+            if pos == ghost.grid_pos:
+                return lv3.ghost_h
+
+        for coin in self.coins:
+            if pos == coin:
+                return lv3.coin_h
+
+        for wall in self.walls:
+            if pos == wall:
+                return lv3.wall_h
+
+        return lv3.path_h
+
+    def level3(self, speed=1000):
+        points = 0
+
+        lastDirection_reverse_heuristic = 0
+        lastDirection_reverse = None
+        last_pos = self.pacman.grid_pos
+
+        ghostOrginalPos = list()
+        for ghost in self.ghosts:
+            ghostOrginalPos.append(ghost.grid_pos)
+
+        ghostLastPos = list()
+        for ghost in self.ghosts:
+            ghostLastPos.append(ghost.grid_pos)
+
+        count = 0  # use for ghost moves
+        while True:
+            last_pos = self.pacman.grid_pos
+
+            # stop conditions
+            i = 0
+            end = False
+            for ghost in self.ghosts:
+                if ghost.grid_pos == last_pos and self.pacman.grid_pos == ghostLastPos[i]:
+                    points += -1000
+                    end = True
+                if ghost.grid_pos == self.pacman.grid_pos:
+                    points += -1000
+                    end = True
+                i += 1
+            if end:
+                self.running = 'finish'
+                break
+
+            type = self.pos_type_lv3(self.pacman.grid_pos)
+            if type == lv3.coin_h:
+                points += lv3.coin_h
+                self.coins.remove(self.pacman.grid_pos)
+
+            if len(self.coins) == 0:
+                self.state = 'finish'
+                break
+
+            # calculate heuristics
+            heuristics = {lv3.direct_up: 0, lv3.direct_down: 0, lv3.direct_left: 0, lv3.direct_right: 0}
+            for direction in heuristics:
+                if direction != lastDirection_reverse:
+                    heuristics[direction] = self.heuristic_lv3(self.pacman.grid_pos, direction, lv3.p_sight)
+                else:
+                    if lastDirection_reverse_heuristic > 0: #there are coins but no ghosts
+                        heuristics[direction] = self.heuristic_lv3(self.pacman.grid_pos, direction, lv3.p_sight)
+                    else:
+                        heuristics[direction] = lv3.first_is_path_h - 1
+            # choose pacman direction
+            max_h = heuristics[max(heuristics, key=heuristics.get)]
+
+            max_directions = list()
+            for direction, value in heuristics.items():
+                if value == max_h:
+                    max_directions.append(direction)
+            next_direction = random.choice(max_directions)
+            lastDirection_reverse = self.reverse_direction(next_direction)
+            lastDirection_reverse_heuristic = self.heuristic_lv3(self.pacman.grid_pos, lastDirection_reverse, lv3.p_sight)
+
+            # ghosts move
+            for ghost in self.ghosts:
+                ghostLastPos.append(ghost.grid_pos)
+
+            ghost_directions = [lv3.direct_up, lv3.direct_down, lv3.direct_left, lv3.direct_right]
+
+            if count % 2 == 0:
+                for ghost in self.ghosts:
+                    next_ghost_direction = random.choice(ghost_directions)
+                    ghost.move_lv3(next_ghost_direction)
+            else:
+                i = 0
+                for ghost in self.ghosts:
+                    ghost.move(ghostOrginalPos[i])
+                    i += 1
+
+            # pacman move
+            last_pos = self.pacman.grid_pos
+            points += - self.pacman.move_lv3(next_direction)
+
+            self.draw()
+
+            count += 1
+
+            time.sleep(1 / speed)
+
+        self.pacman.score = points
+
+    def reverse_direction(self, direction):
+        if direction == lv3.direct_up:
+            return lv3.direct_down
+        if direction == lv3.direct_down:
+            return lv3.direct_up
+        if direction == lv3.direct_left:
+            return lv3.direct_right
+        if direction == lv3.direct_right:
+            return lv3.direct_left
+        else:
+            return None
+
 
 # credit to Tech With Tim
 class button():
@@ -252,5 +437,6 @@ class button():
                 return True
 
         return False
+
 
 

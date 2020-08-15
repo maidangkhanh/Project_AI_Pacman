@@ -21,3 +21,19 @@ PLAYER_COLOUR = (190, 194, 15)
 # font settings
 MENU_TEXT_SIZE = 64
 MENU_FONT = 'comicsans'
+
+#level3 settings
+class level3:
+    ghost_h = -1000
+    wall_h = 0
+    path_h = -1
+    coin_h = 20
+    p_sight = 3
+
+    first_is_wall_h = -100
+    first_is_path_h = -1
+
+    direct_up = "UP"
+    direct_down = "DOWN"
+    direct_left = "LEFT"
+    direct_right = "RIGHT"

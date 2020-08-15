@@ -94,3 +94,58 @@ class Ghost:
         self.path = self.findPacman()
         if self.path:
             self.grid_pos = self.path.pop(0)
+
+    def move_up(self):
+        pos = (self.grid_pos[0], (self.grid_pos[1] - 1 + self.app.row) % self.app.row)
+        type = self.app.pos_type_lv3(pos)
+
+        if type == level3.wall_h:
+            return False
+
+        self.grid_pos = (vec(pos))
+        return True
+
+    def move_down(self):
+        pos = (self.grid_pos[0], (self.grid_pos[1] + 1 + self.app.row) % self.app.row)
+        type = self.app.pos_type_lv3(pos)
+
+        if type == level3.wall_h:
+            return False
+
+        self.grid_pos = (vec(pos))
+        return True
+
+    def move_left(self):
+        pos = ((self.grid_pos[0] - 1 + self.app.col) % self.app.col, self.grid_pos[1])
+        type = self.app.pos_type_lv3(pos)
+
+        if type == level3.wall_h:
+            return False
+
+        self.grid_pos = (vec(pos))
+        return True
+
+    def move_right(self):
+        pos = ((self.grid_pos[0] + 1 + self.app.col) % self.app.col, self.grid_pos[1])
+        type = self.app.pos_type_lv3(pos)
+
+        if type == level3.wall_h:
+            return False
+
+        self.grid_pos = (vec(pos))
+        return True
+
+    def move_lv3(self, direction):
+        if direction == level3.direct_up:
+            return self.move_up()
+        elif direction == level3.direct_down:
+            return self.move_down()
+        elif direction == level3.direct_left:
+            return self.move_left()
+        elif direction == level3.direct_right:
+            return self.move_right()
+        else:
+            pass
+
+    def move(self, destination):
+        self.grid_pos = destination
