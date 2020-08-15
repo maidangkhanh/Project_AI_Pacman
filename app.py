@@ -37,10 +37,14 @@ class App:
                 self = App()
                 self.menu()
             if self.state == 'level1':
+                if self.coins:
+                    self.coins = [random.choice(self.coins)]
                 self.draw(1)
                 pygame.time.delay(300)
                 self.update()
             if self.state == 'level2':
+                if self.coins:
+                    self.coins = [random.choice(self.coins)]
                 self.draw()
                 pygame.time.delay(300)
                 self.update2()
@@ -73,7 +77,7 @@ class App:
                 self.running = 'finish'
 
     def update3(self):
-        self.level3(1000)
+        self.level3(50)
 
     def update4(self):
         if not self.coins:
