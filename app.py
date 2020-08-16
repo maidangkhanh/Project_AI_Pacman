@@ -398,6 +398,12 @@ class App:
 
             count += 1
 
+            # exit buttons
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    return
+
             time.sleep(1 / speed)
 
         self.pacman.score = points
