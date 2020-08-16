@@ -14,9 +14,6 @@ class Pac:
         self.path = []
         self.danger_zone = []
         self.seen_coins = []
-        # self.unexplored_pos = []
-        # self.get_unexplored_pos()
-        # self.explored_pos = []
 
 
     def draw(self):
@@ -32,11 +29,6 @@ class Pac:
     def update2(self):
         self.move2()
         self.check_coins()
-
-    def update3(self):
-        # self.explore()
-        # self.check_coins()
-        pass
 
     def update4(self):
         self.move4()
@@ -66,8 +58,6 @@ class Pac:
             if self.path:
                 self.grid_pos = self.path.pop(0)
                 self.score -= 1
-            elif self.starting_pos in self.app.coins:
-                pass
             else:
                 self.app.state = 'finish'
         else:
@@ -194,30 +184,6 @@ class Pac:
         for ghost in self.app.ghosts:
             res += self.neighbours(ghost.grid_pos)
         return res
-    # def perceive(self):
-    #     for y in range(-1, 2):
-    #         for x in range(-1, 2):
-    #             perceived_cell = self.grid_pos + vec(x, y)
-    #             if perceived_cell in self.app.coins and perceived_cell not in self.seen_coins:
-    #                 self.seen_coins.append(perceived_cell)
-    #
-    # def explore(self):
-    #     self.perceive()
-    #     if self.grid_pos in self.unexplored_pos:
-    #         self.unexplored_pos.remove(self.grid_pos)
-    #     if not self.path:
-    #         if self.seen_coins:
-    #             self.path = self.BFS(self.seen_coins)
-    #         else:
-    #             self.path = self.BFS(self.unexplored_pos)
-    #     self.grid_pos = self.path.pop(0)
-    #
-    #
-    # def get_unexplored_pos(self):
-    #     for y in range(self.app.row):
-    #         for x in range(self.app.col):
-    #             if vec(x, y) not in self.app.walls and vec(x, y) not in self.app.g_pos:
-    #                 self.unexplored_pos.append(vec(x, y))
 
     def move(self, des):
         self.grid_pos = des

@@ -12,7 +12,6 @@ class Ghost:
         self.starting_pos = pos
         self.grid_pos = pos
         self.path = []
-        self.move_zone = self.level3_move_zone()
 
     def draw(self):
         pygame.draw.circle(self.app.screen, RED,
@@ -32,13 +31,6 @@ class Ghost:
     def move_random(self):
         moveable = [x for x in self.neighbours(self.grid_pos) if x in self.move_zone]
         self.grid_pos = random.choice(moveable)
-
-    def level3_move_zone(self):
-        res = []
-        for y in range(-1, 2):
-            for x in range(-1, 2):
-                res.append(self.starting_pos + vec(x, y))
-        return res
 
     def neighbours(self, pos):
         up = pos + vec(-1, 0)

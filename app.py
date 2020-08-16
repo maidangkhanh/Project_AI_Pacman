@@ -27,7 +27,8 @@ class App:
         self.g_pos = []
         self.cell_width = None
         self.cell_height = None
-        self.load()
+        mapdir = random.choice(["map0.txt", "map1.txt", "map2.txt", "map3.txt", "map4.txt"])
+        self.load(mapdir)
         self.mapping()
         self.pacman = Pac(self, vec(self.p_pos))
         self.make_ghost()
@@ -78,7 +79,7 @@ class App:
                 self.running = 'finish'
 
     def update3(self):
-        self.level3(50)
+        self.level3(3)
 
     def update4(self):
         if not self.coins:
@@ -150,10 +151,11 @@ class App:
 
     def draw_wall(self):
         for wall in self.walls:
-            pygame.draw.rect(self.screen, BLUE, (wall.x*self.cell_width,
-                                                 wall.y*self.cell_height,
-                                                 self.cell_width,
-                                                 self.cell_height))
+            if wall[0] in range(self.col) and wall[1] in range(self.row):
+                pygame.draw.rect(self.screen, BLUE, (wall.x*self.cell_width,
+                                                     wall.y*self.cell_height,
+                                                     self.cell_width,
+                                                     self.cell_height))
 
     def draw_grid(self):
         for x in range(WIDTH // self.cell_width):
