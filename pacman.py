@@ -85,62 +85,61 @@ class Pac:
     def find_coins2(self):
         if self.app.coins:
             coin_pos = [self.app.coins[0][0], self.app.coins[0][1]]
-            queue = []
-            heapq.heappush(queue, (
-            Heuristic(self.grid_pos, coin_pos), self.grid_pos, [], 0))  # Heuristic + cost, coordinate, path, cost
+            queue = [(self.grid_pos, [])] # , coordinate, path
+            explored = []
 
             while queue:
-                popped_element = heapq.heappop(queue)
-                x = popped_element[1][0]
-                y = popped_element[1][1]
-                path = popped_element[2]
-                cost = popped_element[3]
+                popped_element = queue.pop(0)
+                x = popped_element[0][0]
+                y = popped_element[0][1]
+                path = popped_element[1]
 
                 if x == coin_pos[0] and y == coin_pos[1]:
                     return path[1:] + [coin_pos]
+                elif [x,y] not in explored:
+                    explored.append([x,y])
 
-                neighboor = [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]
+                neighboor = [[x, (y - 1 + self.app.row) % self.app.row], [x, (y + 1 + self.app.row) % self.app.row], [(x - 1 + self.app.col) % self.app.col, y], [(x + 1 + self.app.col) % self.app.col, y]]
                 while neighboor:
-                    adjacent = neighboor.pop()
+                    adjacent = neighboor.pop(0)
                     x_ = adjacent[0]
                     y_ = adjacent[1]
-                    if x_ in range(0, self.app.col) and y_ in range(0, self.app.row):
-                        if vec(x_, y_) not in self.app.walls and vec(x_, y_) not in self.app.g_pos:
-                            if not [x_, y_] in path:
-                                coordiante = [x_, y_]
-                                heapq.heappush(queue, (
-                                Heuristic(coordiante, coin_pos) + cost + 1, coordiante, path + [[x, y]], cost + 1))
+                    if vec(x_, y_) not in self.app.walls and vec(x_,y_) not in self.app.g_pos:
+                        if not [x_, y_] in explored and [x_, y_] not in queue:
+                            coordiante = [x_, y_]
+                            queue.append((coordiante, path + [[x, y]]))
+
             return []
 
     def find_coins1(self):
         if self.app.coins:
             coin_pos = [self.app.coins[0][0], self.app.coins[0][1]]
-            queue = []
-            heapq.heappush(queue, (
-            Heuristic(self.grid_pos, coin_pos), self.grid_pos, [], 0))  # Heuristic + cost, coordinate, path, cost
+            queue = [(self.grid_pos, [])] # , coordinate, path
+            explored = []
 
             while queue:
-                popped_element = heapq.heappop(queue)
-                x = popped_element[1][0]
-                y = popped_element[1][1]
-                path = popped_element[2]
-                cost = popped_element[3]
+                popped_element = queue.pop(0)
+                x = popped_element[0][0]
+                y = popped_element[0][1]
+                path = popped_element[1]
 
                 if x == coin_pos[0] and y == coin_pos[1]:
                     return path[1:] + [coin_pos]
+                elif [x,y] not in explored:
+                    explored.append([x,y])
 
-                neighboor = [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]
+                neighboor = [[x, (y - 1 + self.app.row) % self.app.row], [x, (y + 1 + self.app.row) % self.app.row], [(x - 1 + self.app.col) % self.app.col, y], [(x + 1 + self.app.col) % self.app.col, y]]
                 while neighboor:
-                    adjacent = neighboor.pop()
+                    adjacent = neighboor.pop(0)
                     x_ = adjacent[0]
                     y_ = adjacent[1]
-                    if x_ in range(0, self.app.col) and y_ in range(0, self.app.row):
-                        if vec(x_, y_) not in self.app.walls:
-                            if not [x_, y_] in path:
-                                coordiante = [x_, y_]
-                                heapq.heappush(queue, (
-                                Heuristic(coordiante, coin_pos) + cost + 1, coordiante, path + [[x, y]], cost + 1))
+                    if vec(x_, y_) not in self.app.walls:
+                        if not [x_, y_] in explored and [x_, y_] not in queue:
+                            coordiante = [x_, y_]
+                            queue.append((coordiante, path + [[x, y]]))
+
             return []
+
 
     def BFS(self):
         goals = self.app.coins
