@@ -12,6 +12,7 @@ vec = pygame.math.Vector2
 
 class App:
     def __init__(self):
+        self.music()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
         self.state = 'start'
@@ -122,7 +123,10 @@ class App:
                     self.coins.append(vec(x, y))
                 elif self.map[y][x] == 3:
                     self.g_pos.append(vec(x, y))
-
+    def music(self):
+        pygame.mixer.init()
+        pygame.mixer.music.load('music.mp3')
+        pygame.mixer.music.play(-1)
     def make_ghost(self):
         for idx, pos in enumerate(self.g_pos):
             self.ghosts.append(Ghost(self, vec(pos)))
